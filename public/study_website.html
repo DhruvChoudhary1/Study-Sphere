@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StudyHub</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <button onclick="toggleTheme()" style="margin-top: 10px; background: transparent; color: var(--primary-text); border: 1px solid var(--input-border);">Toggle Theme</button>
+
+  <!-- Server Page -->
+  <div id="serverPage" class="server-container">
+    <div class="server-box">
+      <h2>Select Your Study Group</h2>
+      <div id="groupSelect" class="server-options"></div>
+      <div id="groupError" style="display: none; color: red; text-align: center;">
+        Failed to load groups. Please try again later.
+    </div> 
+    </div>
+  </div> 
+
+  <!-- Dashboard -->
+  <div id="dashboard" class="dashboard" style="display: none;">
+    <!-- Left Sidebar -->
+    <div class="sidebar-left">
+      <h3>Servers</h3>
+      <ul id="userServerList"></ul>
+      <h4>Channels</h4>
+      <ul id="channelList"></ul>
+      <button onclick="createChannel()">➕ Create Channel</button>
+      <div class="settings-link" style="position: absolute; bottom: 20px; left: 10px;">
+        <button onclick="toggleSettings()">⚙️ Settings</button>
+      </div>
+
+      <!-- Reminder Section -->
+      <!-- Reminder Section -->
+      <div id="reminderBox">
+       <h4>⏰ Study Reminders</h4>
+       <ul id="reminderList"></ul> <!-- This is where it should be -->
+       <button onclick="showReminderForm()">➕ Add Reminder</button>
+      </div> 
+
+      <!-- Reminder Form Modal -->
+      <div id="reminderModal" class="modal" style="display: none;">
+        <div class="modal-content">
+          <span class="close" onclick="hideReminderForm()">&times;</span>
+          <h3>Create Reminder</h3>
+          <input type="text" id="reminderTitle" placeholder="Reminder Message" />
+          <input type="datetime-local" id="reminderDatetime" />
+          <textarea id="reminderNotes" placeholder="Notes (optional)"></textarea>
+          <button id="createReminderButton">Create</button> 
+        </div>
+      </div> 
+    </div>
+
+    <!-- Chat Area -->
+    <div class="chat-area">
+      <div class="chat-header">
+        <h2 id="currentChannelName">StudyHub</h2>
+      </div>
+      <div class="messages" id="chatMessages"></div>
+      <form id="messageForm" class="input-area">
+        <input type="text" id="messageInput" placeholder="Type your message..." autocomplete="off" />
+        <button type="submit">Send</button>
+      </form>
+      <div class="typing-indicator" id="typingIndicator" style="display: none;">User is typing...</div>
+    </div> 
+
+    <!-- Right Sidebar -->
+    <div class="sidebar-right">
+      <h4>Study Info</h4>
+      <p>Group resources, notes, and guidelines.</p>
+      <div id="memberListBox">
+        <h4>👥 Members</h4>
+        <ul id="serverMembers"></ul>
+      </div>
+      <div id="callListBox">
+        <h4>🔊 In Call</h4>
+        <ul id="activeCallMembers"></ul>
+      </div>
+    </div>
+  </div>
+
+  <div id="callControls" style="display: none;">
+    <button onclick="endCall()" class="leave-btn">🚪 Leave Call</button>
+  </div>
+
+  <style>
+    #callControls {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #2f3136;
+      padding: 12px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      z-index: 1000;
+      border-top: 1px solid #202225;
+    }
+    #callControls .leave-btn {
+      background: #ed4245;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #callControls .leave-btn:hover {
+      background: #ff5c5e;
+    }
+  </style>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span class="close" onclick="toggleSettings()">&times;</span>
+      <h2>Settings</h2>
+      <label for="displayName">Display Name:</label>
+      <input type="text" id="displayName" placeholder="Update your name" />
+      <button onclick="updateDisplayName()">Update Name</button>
+      <hr />
+      <button onclick="toggleTheme()">🌓 Toggle Theme</button>
+    </div>
+  </div>
+
+  <!-- AI Chatbot Floating Button -->
+  <div id="aiChatbotButton" onclick="toggleAIChat()" title="Ask AI">🤖</div>
+  <div id="aiChatModal" class="ai-modal" style="display: none;">
+    <div class="ai-modal-content">
+      <div class="ai-header">
+        <span>AI Assistant</span>
+        <span class="ai-close" onclick="toggleAIChat()">&times;</span>
+      </div>
+      <div class="ai-body" id="aiChatBody">
+        <div class="ai-msg">Hello! Ask me anything about your studies 📘</div>
+      </div>
+      <div class="ai-input">
+        <input type="text" id="aiInput" placeholder="Ask a question..." />
+        <button onclick="sendAIChat()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script> 
+  <script src="main.js?v=2"></script>
+  <script src="group-selection.js" defer></script>  
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const selectedGroup = params.get("group");
+
+    const serverPage = document.getElementById("serverPage");
+    const dashboard = document.getElementById("dashboard");
+
+    if (selectedGroup) {
+      serverPage.style.display = "none";
+      dashboard.style.display = "flex";
+      document.getElementById("currentChannelName").textContent = selectedGroup.toUpperCase();
+    } else {
+      serverPage.style.display = "block";
+      dashboard.style.display = "none";
+    }
+  </script>
+   
+</body>
+
+</html>
