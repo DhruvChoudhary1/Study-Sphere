@@ -1,201 +1,312 @@
-root {
+:root {
     --primary-bg: #ffffff;
     --primary-text: #111;
     --sidebar-bg: #f0f0f0;
     --accent-color: #4f46e5;
     --input-bg: #ffffff;
     --input-border: #ccc;
-  }
-  
-  body.dark-theme {
+}
+
+body.dark-theme {
     --primary-bg: #1e1e2e;
     --primary-text: #f5f5f5;
     --sidebar-bg: #2e2e3e;
     --accent-color: #8b5cf6;
     --input-bg: #3e3e4e;
     --input-border: #666;
-  }
-  
-  * {
+}
+
+* {
     box-sizing: border-box;
-  }
-  
-  html, body {
+}
+
+html, body {
     margin: 0;
     padding: 0;
     width: 100vw;
-    height: 100vh; /* <-- Change from 100% to 100vh */
+    height: 100vh;
     font-family: 'Segoe UI', sans-serif;
     background-color: var(--primary-bg);
     color: var(--primary-text);
     overflow: hidden;
-  }
-  
-  Login & Server Pages
-  .login-container,
-  .server-container {
+}
+
+/* Login & Server Pages Container */
+.login-container,
+.server-container {
+    width: 100vw;
+    height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center; 
-    height: 100vh; /* Full viewport height */
-    margin: 0; /* Ensure no margin */
-    padding: 0; /* Ensure no padding */
-    background-color: var(--primary-bg); /* Optional background color */
-  }
-  
-  .login-box,
-  .server-box {
+    margin: 0;
+    padding: 0;
+    background-color: var(--primary-bg);
+}
+
+/* Large responsive login box */
+.login-box,
+.server-box {
     background: var(--sidebar-bg);
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-    width: 300px;
+    padding: 3rem 4rem;
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.13);
+    width: 80vw;
+    max-width: 1200px;
+    min-height: 70vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: stretch;
+    overflow: hidden;
     text-align: center;
-    max-width: 90%; /* Ensure responsiveness on smaller screens */
-  }
-  
-  .login-box input,
-  .server-box input,
-  .modal-content input {
-    padding: 10px;
-    width: 100%;
-    margin-top: 10px;
+}
+
+/* Form section inside login box */
+.login-form-section {
+    flex: 1 1 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-right: 3rem;
+    background: var(--sidebar-bg);
+    color: var(--primary-text);
+}
+
+/* Info section inside login box */
+.login-info-section {
+    flex: 1 1 50%;
+    padding-left: 3rem;
+    background: linear-gradient(120deg, #4f46e5 30%, #6b58ff 100%);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: left;
+}
+
+.login-info-section h2 {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+
+.login-info-section p {
+    font-size: 1.3rem;
+    line-height: 1.5;
+}
+
+.login-form-section h2 {
+    font-size: 2.8rem;
+    margin-bottom: 2rem;
+    font-weight: 600;
+    text-align: left;
+}
+
+.login-form-section label {
+    font-size: 0.9rem;
+    text-align: left;
+    margin-top: 1.5rem;
+}
+
+/* Inputs styling */
+.login-form-section input {
+    margin-top: 0.6rem;
+    margin-bottom: 1.5rem;
+    background: var(--input-bg);
     border: 1px solid var(--input-border);
-    background-color: var(--input-bg);
     border-radius: 6px;
     color: var(--primary-text);
-  }
-  
-  .login-box button,
-  .server-box button,
-  .modal-content button {
-    margin-top: 15px;
-    padding: 10px;
-    background-color: var(--accent-color);
-    color: #fff;
-    border: none;
+    font-size: 1.2rem;
+    padding: 1rem 1.2rem;
     width: 100%;
-    border-radius: 6px;
+}
+
+/* Buttons styling */
+.login-form-section button {
+    margin-top: 2.5rem;
+    background: linear-gradient(135deg, #4f46e5, #6b58ff);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 1.4rem;
+    padding: 1.2rem 0;
     cursor: pointer;
-  }
-  
-  .server-options button {
+    transition: background-color 0.3s ease;
+}
+
+.login-form-section button:hover {
+    background-color: #3c37cc;
+}
+
+/* Sign up link */
+.login-form-section p {
+    margin-top: 1.8rem;
+    font-size: 1.1rem;
+}
+
+.login-form-section a {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.login-form-section a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+    .login-box {
+        flex-direction: column;
+        width: 95vw;
+        height: auto;
+        padding: 2rem;
+        border-radius: 12px;
+        min-height: unset;
+    }
+    .login-form-section,
+    .login-info-section {
+        flex: none;
+        width: 100%;
+        padding: 2rem 0;
+        text-align: center;
+    }
+    .login-info-section {
+        padding-left: 0;
+        margin-top: 2rem;
+    }
+    .login-form-section h2,
+    .login-info-section h2 {
+        font-size: 2.5rem;
+    }
+    .login-info-section p {
+        font-size: 1.1rem;
+    }
+    .login-form-section input,
+    .login-form-section button {
+        font-size: 1.1rem;
+        padding: 0.9rem;
+    }
+}
+
+
+.server-options button {
     margin: 0.5rem;
     width: 100%;
-  }
-  
-  /* Dashboard */
-  .dashboard {
+}
+
+/* The rest of your CSS unchanged... */
+.dashboard {
     display: flex;
     height: 100%;
     width: 100%;
     overflow: hidden;
-  }
-  
-  .sidebar-left,
-  .sidebar-right {
+}
+
+.sidebar-left,
+.sidebar-right {
     width: 240px;
     background-color: var(--sidebar-bg);
     padding: 1rem;
     display: flex;
     flex-direction: column;
     position: relative;
-  }
-  
-  .sidebar-left ul,
-  #channelList {
+}
+
+.sidebar-left ul,
+#channelList {
     list-style: none;
     padding: 0;
     margin: 0.5rem 0;
-  }
-  
-  .sidebar-left li,
-  #channelList li {
+}
+
+.sidebar-left li,
+#channelList li {
     padding: 8px;
     margin: 4px 0;
     border-radius: 6px;
     cursor: pointer;
-  }
-  
-  .sidebar-left li:hover,
-  #channelList li:hover {
+}
+
+.sidebar-left li:hover,
+#channelList li:hover {
     background-color: var(--accent-color);
     color: white;
-  }
-  
-  .chat-area {
+}
+
+.chat-area {
     flex: 1;
     display: flex;
     flex-direction: column;
     background-color: var(--primary-bg);
     padding: 1rem;
     height: 100%;
-  }
-  
-  .chat-header {
+}
+
+.chat-header {
     padding-bottom: 0.5rem;
     border-bottom: 1px solid var(--input-border);
-  }
-  
-  .messages {
+}
+
+.messages {
     flex: 1;
     overflow-y: auto;
     margin: 1rem 0;
     padding-right: 1rem;
-  }
-  
-  .messages div {
+}
+
+.messages div {
     padding: 6px 10px;
     margin: 4px 0;
     background-color: var(--sidebar-bg);
     border-radius: 6px;
     max-width: 80%;
     word-wrap: break-word;
-  }
-  
-  .input-area {
+}
+
+.input-area {
     display: flex;
     gap: 10px;
     margin-bottom: 0.5rem;
-  }
-  
-  .input-area input {
+}
+
+.input-area input {
     flex: 1;
     padding: 10px;
     border-radius: 6px;
     border: 1px solid var(--input-border);
     background-color: var(--input-bg);
     color: var(--primary-text);
-  }
-  
-  .input-area button {
+}
+
+.input-area button {
     padding: 10px 20px;
     background-color: var(--accent-color);
     color: #fff;
     border: none;
     border-radius: 6px;
     cursor: pointer;
-  }
-  
-  .controls button {
+}
+
+.controls button {
     margin-right: 10px;
     padding: 8px 12px;
     background-color: var(--accent-color);
     color: white;
     border: none;
     border-radius: 6px;
-  }
-  
-  .settings-link button {
+}
+
+.settings-link button {
     background: transparent;
     border: none;
     color: var(--primary-text);
     font-size: 1.1rem;
     cursor: pointer;
-  }
-  
-  /* Modal */
-  .modal {
+}
+
+/* Modal */
+.modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -206,29 +317,29 @@ root {
     align-items: center;
     justify-content: center;
     z-index: 100;
-  }
-  
-  .modal-content {
+}
+
+.modal-content {
     background-color: var(--primary-bg);
     padding: 2rem;
     border-radius: 12px;
     width: 400px;
     position: relative;
-  }
-  
-  .modal-content h2 {
+}
+
+.modal-content h2 {
     margin-top: 0;
-  }
-  
-  .modal-content .close {
+}
+
+.modal-content .close {
     position: absolute;
     right: 15px;
     top: 10px;
     font-size: 24px;
     cursor: pointer;
-  }
+}
 
-  #aiChatbotButton {
+#aiChatbotButton {
     position: fixed;
     bottom: 25px;
     right: 25px;
@@ -240,9 +351,9 @@ root {
     cursor: pointer;
     z-index: 1000;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  }
-  
-  .ai-modal {
+}
+
+.ai-modal {
     position: fixed;
     bottom: 90px;
     right: 25px;
@@ -255,16 +366,15 @@ root {
     z-index: 999;
     display: flex;
     flex-direction: column;
-  }
-  
-  
-  .ai-modal-content {
+}
+
+.ai-modal-content {
     display: flex;
     flex-direction: column;
     height: 100%;
-  }
-  
-  .ai-header {
+}
+
+.ai-header {
     padding: 10px;
     background-color: #4b8df8;
     color: white;
@@ -272,37 +382,37 @@ root {
     display: flex;
     justify-content: space-between;
     align-items: center;
-  }
-  
-  .ai-body {
+}
+
+.ai-body {
     flex: 1;
     padding: 10px;
     overflow-y: auto;
     font-size: 14px;
-  }
-  
-  .ai-msg {
+}
+
+.ai-msg {
     margin-bottom: 10px;
     background: #0000; 
     padding: 6px 10px;
     border-radius: 6px;
-  }
-  
-  .ai-input {
+}
+
+.ai-input {
     display: flex;
     padding: 8px;
     border-top: 1px solid #ddd;
-  }
-  
-  .ai-input input {
+}
+
+.ai-input input {
     flex: 1;
     padding: 6px;
     font-size: 14px;
     border: 1px solid #ccc;
     border-radius: 6px;
-  }
-  
-  .ai-input button {
+}
+
+.ai-input button {
     margin-left: 6px;
     padding: 6px 10px;
     background-color: #4b8df8;
@@ -310,10 +420,9 @@ root {
     border: none;
     border-radius: 6px;
     cursor: pointer;
-  }
-  
-  .ai-close {
+}
+
+.ai-close {
     cursor: pointer;
     font-size: 20px;
-  }
-  
+}
