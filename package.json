@@ -3,31 +3,30 @@
   "version": "1.0.0",
   "description": "Login and registration system for StudyHub website",
   "main": "server.js",
+  "type": "commonjs",
   "scripts": {
     "start": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon server.js"
   },
-  "author": "",
+  "keywords": ["studyhub", "auth", "node", "express", "mongodb"],
+  "author": "Dhruv Choudhary",
   "license": "ISC",
-  "keywords": [],
   "dependencies": {
     "axios": "^1.8.4",
-    "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.2",
-    "body-parser": "^2.2.0",
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.5.0",
-    "express": "^5.1.0",
+    "express": "^4.19.2",
     "express-rate-limit": "^7.5.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
-    "mongod": "^2.0.0",
+    "mongodb": "^6.3.0",
     "mongoose": "^8.13.2",
     "nodemailer": "^6.10.1",
-    "openai": "^4.92.0",
-    "path": "^0.12.7",
-    "perspective-api-client": "^1.1.0",
     "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
   }
 }

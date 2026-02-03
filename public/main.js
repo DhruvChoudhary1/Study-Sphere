@@ -4,7 +4,7 @@
 const socket = io();
 
 let currentChannel = "general";
-let currentRoomId = null;
+
 let localStream = null;
 let remoteStream = null;
 let peerConnection = null;
@@ -101,20 +101,26 @@ function setupChat() {
 
 
   socket.on("chat-message", (msg) => {
-  if (msg.roomId !== currentRoomId) return;
+    // Store message in cache
+    if (!channelMessages[msg.roomId]) channelMessages[msg.roomId] = [];
+    channelMessages[msg.roomId].push({ sender: msg.sender, content: msg.content });
 
-  const myName = localStorage.getItem("displayName");
-  const senderLabel = msg.sender === myName ? "You" : msg.sender;
+    // Only display if in current room
+    if (msg.roomId !== currentRoomId) return;
 
-  const div = document.createElement("div");
-  div.classList.add("message");
-  div.innerHTML = `<strong>${senderLabel}:</strong> ${msg.content}`;
+    appendMessageToChat(msg.sender, msg.content);
+  });
 
-  chatMessages.appendChild(div);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-});
-
-
+  // Helper to append a message to the chat UI
+  function appendMessageToChat(sender, content) {
+    const myName = localStorage.getItem("displayName");
+    const senderLabel = sender === myName ? "You" : sender;
+    const div = document.createElement("div");
+    div.classList.add("message");
+    div.innerHTML = `<strong>${senderLabel}:</strong> ${content}`;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
 }
 
 /*********************************
@@ -141,46 +147,65 @@ async function moderateMessage(content) {
 /*********************************
  * CHANNELS + UI
  *********************************/
+let currentRoomId = null;
+let currentRoomType = null;
 let lastRoomId = null;
-
 window.handleChannelClick = function (channelName, type = "text") {
   const group = localStorage.getItem("selectedGroup");
-  const newRoomId = `${group}::${channelName}`;
+  const displayName = localStorage.getItem("displayName") || "Anonymous";
+  const cleanName = normalizeChannelName(channelName);
 
-  if (lastRoomId && lastRoomId !== newRoomId) {
+  // leave previous room
+  if (lastRoomId) {
     socket.emit("leave-room", { roomId: lastRoomId });
   }
 
-  currentRoomId = newRoomId;
-  lastRoomId = newRoomId;
-  currentChannel = channelName;
+  currentChannel = cleanName;
+  currentRoomType = type;
+  currentRoomId = `${group}::${cleanName}`;
+  lastRoomId = currentRoomId;
 
   socket.emit("join-room", {
     roomId: currentRoomId,
-    user: {
-      name: localStorage.getItem("displayName") || "Anonymous",
-    },
+    roomType: "text",
+    user: { name: displayName }
   });
 
-  document.getElementById("currentChannelName").textContent = channelName;
-  document.getElementById("chatMessages").innerHTML = "";
+  document.getElementById("currentChannelName").textContent = `#${cleanName}`;
+  const chatMessagesDiv = document.getElementById("chatMessages");
+  chatMessagesDiv.innerHTML = "";
+  // Load cached messages for this room
+  const cached = channelMessages[currentRoomId] || [];
+  cached.forEach(msg => {
+    const myName = localStorage.getItem("displayName");
+    const senderLabel = msg.sender === myName ? "You" : msg.sender;
+    const div = document.createElement("div");
+    div.classList.add("message");
+    div.innerHTML = `<strong>${senderLabel}:</strong> ${msg.content}`;
+    chatMessagesDiv.appendChild(div);
+  });
 
   if (type === "voice") joinCall(false);
-  else if (type === "video") joinCall(true);
+  if (type === "video") joinCall(true);
 };
+
+
 
 
 /*********************************
  * WEBRTC (VOICE / VIDEO)
  *********************************/
 async function joinCall(withVideo) {
+  const group = localStorage.getItem("selectedGroup");
+  const displayName = localStorage.getItem("displayName") || "Anonymous";
+
   localStream = await navigator.mediaDevices.getUserMedia({
     audio: true,
     video: withVideo
   });
 
   peerConnection = new RTCPeerConnection(rtcConfig);
-  localStream.getTracks().forEach((t) =>
+  localStream.getTracks().forEach(t =>
     peerConnection.addTrack(t, localStream)
   );
 
@@ -195,62 +220,75 @@ async function joinCall(withVideo) {
     }
   };
 
+  const callRoomId = `${group}::${currentChannel}`;
+  currentRoomType = withVideo ? "video" : "voice";
+
   socket.emit("join-room", {
-    roomId: currentRoomId,
-    user: { name: localStorage.getItem("displayName") || "Anonymous" }
+    roomId: callRoomId,
+    roomType: currentRoomType,
+    user: { name: displayName }
   });
 
   attachMediaStreams();
 }
+
 window.updateDisplayName = function () {
   const input = document.getElementById("displayName");
   const newName = input.value.trim();
 
-  if (!newName) {
-    alert("Display name cannot be empty");
-    return;
-  }
+  if (!newName) return alert("Display name cannot be empty");
 
-  // 1️⃣ Save locally
   localStorage.setItem("displayName", newName);
 
-  // 2️⃣ Re-join current room with updated name
-  if (currentRoomId) {
+  if (currentRoomId && currentRoomType) {
     socket.emit("join-room", {
       roomId: currentRoomId,
-      user: {
-        name: newName,
-      },
+      roomType: currentRoomType,
+      user: { name: newName }
     });
   }
 
   alert("✅ Display name updated");
 };
+
 window.createChannel = function () {
-  const type = prompt("Which type of channel? (text / voice / video)");
-  if (!type || !["text", "voice", "video"].includes(type.toLowerCase())) {
-    alert("Invalid channel type");
+  const type = prompt("Channel type? (text / voice / video)");
+  if (!["text", "voice", "video"].includes(type)) {
+    alert("Invalid type");
     return;
   }
 
-  const name = prompt("Enter channel name:");
+  const name = prompt("Channel name?");
   if (!name) return;
 
-  const channelList = document.getElementById("channelList");
+  const group = localStorage.getItem("selectedGroup");
 
-  const li = document.createElement("li");
-  li.textContent =
-    type === "text" ? `#${name}` :
-    type === "voice" ? `🔊 ${name}` :
-    `🎥 ${name}`;
-
-  li.classList.add("channel-item");
-
-  li.onclick = () => handleChannelClick(name, type);
-
-  channelList.appendChild(li);
+  socket.emit("create-channel", {
+    group,
+    channel: { name, type }
+  });
 };
 
+function normalizeChannelName(name) {
+  return name.replace(/^#|🔊|🎥/g, "").trim();
+}
+
+socket.on("channel-created", ({ group, channel }) => {
+  if (group !== localStorage.getItem("selectedGroup")) return;
+
+  const li = document.createElement("li");
+  li.classList.add("channel-item");
+
+  const label =
+    channel.type === "text" ? `#${channel.name}` :
+    channel.type === "voice" ? `🔊 ${channel.name}` :
+    `🎥 ${channel.name}`;
+
+  li.textContent = label;
+  li.onclick = () => handleChannelClick(channel.name, channel.type);
+
+  document.getElementById("channelList").appendChild(li);
+});
 
 
 socket.on("webrtc-offer", async ({ senderId, offer }) => {
@@ -348,3 +386,24 @@ window.toggleSettings = function () {
   const modal = document.getElementById("settingsModal");
   modal.style.display = modal.style.display === "block" ? "none" : "block";
 };
+
+// =============================
+// MEMBER LIST UI HANDLER
+// =============================
+socket.on("room-members", ({ roomId, members }) => {
+  // Only update if this is the current room
+  if (roomId !== currentRoomId) return;
+  const list = document.getElementById("serverMembers");
+  if (!list) return;
+  list.innerHTML = "";
+  members.forEach((m) => {
+    const li = document.createElement("li");
+    li.textContent = m.name;
+    list.appendChild(li);
+  });
+});
+
+// =============================
+// MESSAGE CACHE FOR CHANNELS
+// =============================
+const channelMessages = {}; // { roomId: [ {sender, content} ] }
