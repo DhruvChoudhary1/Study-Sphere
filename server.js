@@ -10,7 +10,7 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server, {
   cors: {
-    origin: true,
+    origin: "https://study-sphere-kohl.vercel.app",
     credentials: true,
   },
 });
@@ -42,7 +42,7 @@ app.use(
 
 app.use(
   cors({
-    origin: true,
+    origin: "https://study-sphere-kohl.vercel.app",
     credentials: true,
   })
 );
