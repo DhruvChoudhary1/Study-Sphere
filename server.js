@@ -2,6 +2,8 @@ require("dotenv").config();
 
 const express = require("express");
 const app = express();
+// Trust proxy headers (needed for deployments behind proxies like Vercel)
+app.set('trust proxy', 1);
 const http = require("http");
 const server = http.createServer(app);
 
